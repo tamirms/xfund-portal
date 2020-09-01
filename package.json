@@ -1,0 +1,40 @@
+{
+  "name": "xfund-portal",
+  "version": "0.0.1",
+  "description": "xFUND Portal - front end interface for xFUND",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint './src/**/*.js'",
+    "dev": "next dev src",
+    "build": "next build src",
+    "start": "next start src"
+  },
+  "author": "Codegnosis",
+  "license": "MIT",
+  "dependencies": {
+    "@metamask/detect-provider": "^1.1.0",
+    "bn.js": "^5.1.3",
+    "bootstrap": "^4.5.2",
+    "isomorphic-unfetch": "^3.0.0",
+    "jsonwebtoken": "^8.5.1",
+    "next": "^9.5.2",
+    "next-connect": "^0.8.1",
+    "prop-types": "^15.7.2",
+    "react": "^16.13.1",
+    "react-bootstrap": "^1.3.0",
+    "react-dom": "^16.13.1",
+    "react-toastify": "^6.0.8",
+    "web3": "^1.2.11"
+  },
+  "devDependencies": {
+    "eslint": "^7.8.0",
+    "eslint-config-airbnb-base": "^14.0.0",
+    "eslint-config-prettier": "^6.7.0",
+    "eslint-plugin-import": "^2.19.1",
+    "eslint-plugin-jest": "^23.1.1",
+    "eslint-plugin-prettier": "^3.1.1",
+    "eslint-plugin-react": "^7.20.6",
+    "prettier": "^2.1.0"
+  }
+}
