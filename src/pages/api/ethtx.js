@@ -8,6 +8,7 @@ handler.post(async (req, res) => {
   const { mainchain_tx, eth_address, eth_tx } = req.body
   const { JWT_SHARED_SECRET } = process.env
 
+  // Todo - query eth tx to see if it's actually an xFUND claim
   const jwtPayload = {
     mainchain_tx,
     eth_address,
