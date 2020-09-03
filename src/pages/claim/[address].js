@@ -24,11 +24,21 @@ export async function getServerSideProps(context) {
   }
 
   let res
+  let valData
   let issued = null
+  let claimed = false
   if (queryMcTx) {
     res = await fetch(`${process.env.ORACLE_BACKEND_API}/claims/address/${queryAddress}/mctx/${queryMcTx}`)
+    valData = await res.json()
+    if (valData.result.length > 0) {
+      if (parseInt(valData.result[0].claim_status, 10) === 2) {
+        claimed = true
+      }
+    }
   } else {
     res = await fetch(`${process.env.ORACLE_BACKEND_API}/emissions/unclaimed/address/${queryAddress}`)
+    valData = await res.json()
+
     const issuedRes = await fetch(`${process.env.ORACLE_BACKEND_API}/claims/address/${queryAddress}/status/1`)
     const issuedNotClaimed = await issuedRes.json()
     if (issuedNotClaimed.success && issuedNotClaimed.status === 200) {
@@ -37,8 +47,6 @@ export async function getServerSideProps(context) {
       }
     }
   }
-
-  const valData = await res.json()
 
   if (valData.status === 200 && valData.success) {
     if (valData.result.length > 0) {
@@ -53,16 +61,36 @@ export async function getServerSideProps(context) {
       validatorExists,
       mcTx: queryMcTx,
       issued,
+      claimed,
     },
   }
 }
 
-export default function Claim({ validator, validatorExists, mcTx, issued }) {
+export default function Claim({ validator, validatorExists, mcTx, issued, claimed }) {
   if (validatorExists) {
-    return (
-      <Layout>
-        <section>
-          {issued ? (
+    if (claimed) {
+      return (
+        <Layout>
+          <section>
+            <div>
+              <p>
+                Already claimed in Ethereum Tx:&nbsp;
+                <Link
+                  href={`${process.env.ETH_EXPLORER}/tx/${validator.ethereum_tx}`}
+                  as={`${process.env.ETH_EXPLORER}/tx/${validator.ethereum_tx}`}
+                >
+                  <a target="_blank">{validator.ethereum_tx}</a>
+                </Link>
+              </p>
+            </div>
+          </section>
+        </Layout>
+      )
+    }
+    if (issued) {
+      return (
+        <Layout>
+          <section>
             <div>
               <p>Warning: you have an incomplete claim - please complete this before beginning a new claim</p>
               <ul>
@@ -81,11 +109,16 @@ export default function Claim({ validator, validatorExists, mcTx, issued }) {
                 <Button>Complete Claim</Button>
               </Link>
             </div>
-          ) : (
-            <div>
-              <EthereumWrapper validator={validator} mcTx={mcTx} />
-            </div>
-          )}
+          </section>
+        </Layout>
+      )
+    }
+    return (
+      <Layout>
+        <section>
+          <div>
+            <EthereumWrapper validator={validator} mcTx={mcTx} />
+          </div>
         </section>
       </Layout>
     )
@@ -104,4 +137,5 @@ Claim.propTypes = {
   validatorExists: PropTypes.bool,
   mcTx: PropTypes.string,
   issued: PropTypes.object,
+  claimed: PropTypes.bool,
 }

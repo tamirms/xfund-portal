@@ -7,6 +7,8 @@ import Link from "next/link"
 import MemoContainer from "./MemoContainer"
 import TicketContainer from "./TicketContainer"
 
+import { xFundSigDomain, xFundSigTxData, xFundSigDomainData } from "../../common/utils/constants"
+
 export default class ClaimXfund extends React.Component {
   constructor(props) {
     super(props)
@@ -98,7 +100,7 @@ export default class ClaimXfund extends React.Component {
   }
 
   async _handleTxHashSubmit() {
-    const { currentAccount, contract } = this.props
+    const { currentAccount, contract, ethereum } = this.props
     const { mainchainTxHash } = this.state
     let nonce = 0
     try {
@@ -107,10 +109,47 @@ export default class ClaimXfund extends React.Component {
       this._setError(err.message)
       return
     }
+
     const newNonce = parseInt(nonce, 10) + 1
+
+    const sigNonce = Math.floor(Date.now() / 1000)
+
+    const domain = [...xFundSigDomain]
+    const txData = [...xFundSigTxData]
+    const domainData = xFundSigDomainData(ethereum.chainId)
+    const message = {
+      tx_hash: mainchainTxHash,
+      sig_nonce: sigNonce,
+    }
+    const msgParams = JSON.stringify({
+      types: {
+        EIP712Domain: domain,
+        TxData: txData,
+      },
+      domain: domainData,
+      primaryType: "TxData",
+      message,
+    })
+
+    const params = [currentAccount, msgParams]
+
+    let sigRes
+    try {
+      sigRes = await ethereum.request({
+        method: "eth_signTypedData_v3",
+        params,
+        from: currentAccount,
+      })
+    } catch (err) {
+      this._setError(err.message)
+      return
+    }
+
     const postData = {
       tx_hash: mainchainTxHash,
       nonce: newNonce,
+      sig_nonce: sigNonce,
+      sig: sigRes,
     }
 
     fetch(`/api/ticket`, {
@@ -165,6 +204,7 @@ export default class ClaimXfund extends React.Component {
       })
     } else {
       try {
+        // todo - check contract event emissions for address/amount/nonce first, and update eth_tx accordingly
         const contractRes = await contract.methods
           .claim(claimTicket.abn, claimTicket.nnc, claimTicket.tkt)
           .send({ from: currentAccount })
@@ -174,6 +214,9 @@ export default class ClaimXfund extends React.Component {
             mainchain_tx: mainchainTxHash,
             eth_address: currentAccount,
             eth_tx: ethTxHash,
+            nonce: claimTicket.nnc,
+            amount: claimTicket.abn,
+            ticket: claimTicket.tkt,
           }
           fetch(`/api/ethtx`, {
             method: "POST",
@@ -319,4 +362,5 @@ ClaimXfund.propTypes = {
   currentAccount: PropTypes.string,
   validator: PropTypes.object,
   mcTx: PropTypes.string,
+  web3: PropTypes.object,
 }

@@ -67,6 +67,7 @@ export default class EthereumWrapper extends React.Component {
           accounts,
           contract,
           currentAccount,
+          web3,
           metaMaskLoading: false,
         })
         await this.getxFundBalance()
@@ -81,6 +82,7 @@ export default class EthereumWrapper extends React.Component {
         ethereum: null,
         accounts: null,
         contract: null,
+        web3: null,
         currentAccount: null,
         metaMaskLoading: false,
       })
@@ -88,7 +90,7 @@ export default class EthereumWrapper extends React.Component {
   }
 
   render() {
-    const { ethereum, contract, currentAccount, metaMaskLoading, xFundBalance } = this.state
+    const { ethereum, contract, currentAccount, metaMaskLoading, xFundBalance, web3 } = this.state
     const { validator, mcTx } = this.props
     if (ethereum && currentAccount && contract) {
       return (
@@ -106,6 +108,7 @@ export default class EthereumWrapper extends React.Component {
             metaMaskLoading={metaMaskLoading}
             validator={validator}
             mcTx={mcTx}
+            web3={web3}
           />
         </div>
       )
