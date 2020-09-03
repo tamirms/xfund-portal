@@ -7,7 +7,7 @@ import { DEFAULT_JSON_RESPONSE, STATUS_CODES } from "../../common/utils/constant
 const handler = nextConnect()
 
 handler.post(async (req, res) => {
-  const { tx_hash, nonce } = req.body
+  const { tx_hash, nonce, sig_nonce, sig } = req.body
   const { JWT_SHARED_SECRET } = process.env
 
   let result = { ...DEFAULT_JSON_RESPONSE }
@@ -15,6 +15,8 @@ handler.post(async (req, res) => {
   const jwtPayload = {
     tx_hash,
     nonce,
+    sig_nonce,
+    sig,
   }
 
   const jwtData = jwt.sign(jwtPayload, JWT_SHARED_SECRET)

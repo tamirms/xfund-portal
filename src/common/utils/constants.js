@@ -79,6 +79,28 @@ const errorCodeLookup = (errCode) => {
   }
 }
 
+const xFundSigDomain = [
+  { name: "name", type: "string" },
+  { name: "version", type: "string" },
+  { name: "chainId", type: "uint256" },
+  { name: "verifyingContract", type: "address" },
+  { name: "salt", type: "bytes32" },
+]
+const xFundSigTxData = [
+  { name: "tx_hash", type: "string" },
+  { name: "sig_nonce", type: "uint256" },
+]
+const xFundSigDomainData = (chainId) => {
+  const parsedChainId = parseInt(chainId, 10)
+  return {
+    name: "xFUND",
+    version: "1",
+    chainId: parsedChainId,
+    verifyingContract: process.env.XFUND_CONTRACT_ADDRESS,
+    salt: process.env.XFUND_CONTRACT_SALT,
+  }
+}
+
 module.exports = {
   DEFAULT_JSON_RESPONSE,
   STATUS_CODES,
@@ -86,4 +108,7 @@ module.exports = {
   claimStatusLookup,
   errorCodeLookup,
   isValidClaimStatus,
+  xFundSigDomain,
+  xFundSigTxData,
+  xFundSigDomainData,
 }

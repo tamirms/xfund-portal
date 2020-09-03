@@ -7,5 +7,6 @@ module.exports = {
     ETH_NETWORK: process.env.ETH_NETWORK,
     XFUND_CONTRACT_ADDRESS: process.env.XFUND_CONTRACT_ADDRESS,
     XFUND_ABI: process.env.XFUND_ABI,
+    XFUND_CONTRACT_SALT: process.env.XFUND_CONTRACT_SALT,
   },
 }
