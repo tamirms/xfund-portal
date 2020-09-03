@@ -68,7 +68,7 @@ export async function getServerSideProps(context) {
 
 export default function Claim({ validator, validatorExists, mcTx, issued, claimed }) {
   if (validatorExists) {
-    if(claimed) {
+    if (claimed) {
       return (
         <Layout>
           <section>
@@ -86,55 +86,50 @@ export default function Claim({ validator, validatorExists, mcTx, issued, claime
           </section>
         </Layout>
       )
-    } else {
-      if(issued) {
-        return (
-          <Layout>
-            <section>
-              <div>
-                <p>
-                  Warning: you have an incomplete claim - please complete this before beginning a new claim
-                </p>
-                <ul>
-                  <li>Node: {issued.moniker}</li>
-                  <li>Date Issued: {issued.created}</li>
-                  <li>Amount: {issued.amount} xFUND</li>
-                  <li>Operator: {issued.operator_address}</li>
-                  <li>Address: {issued.self_delegate_address}</li>
-                  <li>Ethereum Address: {issued.eth_address}</li>
-                  <li>Mainchain Tx: {issued.mainchain_tx}</li>
-                </ul>
-                <Link
-                  href={`/claim/[address]?mctx=${issued.mainchain_tx}`}
-                  as={`/claim/${issued.self_delegate_address}?mctx=${issued.mainchain_tx}`}
-                >
-                  <Button>Complete Claim</Button>
-                </Link>
-              </div>
-            </section>
-          </Layout>
-        )
-      } else {
-        return (
-          <Layout>
-            <section>
-              <div>
-                <EthereumWrapper validator={validator} mcTx={mcTx} />
-              </div>
-            </section>
-          </Layout>
-        )
-      }
     }
-  } else {
+    if (issued) {
+      return (
+        <Layout>
+          <section>
+            <div>
+              <p>Warning: you have an incomplete claim - please complete this before beginning a new claim</p>
+              <ul>
+                <li>Node: {issued.moniker}</li>
+                <li>Date Issued: {issued.created}</li>
+                <li>Amount: {issued.amount} xFUND</li>
+                <li>Operator: {issued.operator_address}</li>
+                <li>Address: {issued.self_delegate_address}</li>
+                <li>Ethereum Address: {issued.eth_address}</li>
+                <li>Mainchain Tx: {issued.mainchain_tx}</li>
+              </ul>
+              <Link
+                href={`/claim/[address]?mctx=${issued.mainchain_tx}`}
+                as={`/claim/${issued.self_delegate_address}?mctx=${issued.mainchain_tx}`}
+              >
+                <Button>Complete Claim</Button>
+              </Link>
+            </div>
+          </section>
+        </Layout>
+      )
+    }
     return (
       <Layout>
         <section>
-          <p>{validator.self_delegate_address} does not exist or currently no unclaimed xFUND</p>
+          <div>
+            <EthereumWrapper validator={validator} mcTx={mcTx} />
+          </div>
         </section>
       </Layout>
     )
   }
+  return (
+    <Layout>
+      <section>
+        <p>{validator.self_delegate_address} does not exist or currently no unclaimed xFUND</p>
+      </section>
+    </Layout>
+  )
 }
 
 Claim.propTypes = {
@@ -142,4 +137,5 @@ Claim.propTypes = {
   validatorExists: PropTypes.bool,
   mcTx: PropTypes.string,
   issued: PropTypes.object,
+  claimed: PropTypes.bool,
 }

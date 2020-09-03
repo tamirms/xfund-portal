@@ -37,7 +37,6 @@ handler.post(async (req, res) => {
 
   if (oracleData.success && oracleData.status === 200) {
     try {
-      console.log(oracleData.result)
       if (parseInt(oracleData.result.claim_status, 10) === TICKET_CLAIM_STATUS.CLAIMED) {
         result.status = STATUS_CODES.ERR.CLAIM_TICKET
         result.error = `Ticket already claimed in Eth Tx ${oracleData.result.eth_tx}`
