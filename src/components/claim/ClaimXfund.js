@@ -204,6 +204,7 @@ export default class ClaimXfund extends React.Component {
       })
     } else {
       try {
+        // todo - check contract event emissions for address/amount/nonce first, and update eth_tx accordingly
         const contractRes = await contract.methods
           .claim(claimTicket.abn, claimTicket.nnc, claimTicket.tkt)
           .send({ from: currentAccount })
@@ -213,6 +214,9 @@ export default class ClaimXfund extends React.Component {
             mainchain_tx: mainchainTxHash,
             eth_address: currentAccount,
             eth_tx: ethTxHash,
+            nonce: claimTicket.nnc,
+            amount: claimTicket.abn,
+            ticket: claimTicket.tkt,
           }
           fetch(`/api/ethtx`, {
             method: "POST",
