@@ -91,7 +91,7 @@ const xFundSigTxData = [
   { name: "sig_nonce", type: "uint256" },
 ]
 const xFundSigDomainData = (chainId, sigSalt) => {
-  const parsedChainId = parseInt(chainId, 10)
+  const parsedChainId = parseInt(chainId, 16)
   return {
     name: "xFUND",
     version: "1",
