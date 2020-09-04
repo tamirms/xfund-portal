@@ -103,8 +103,11 @@ export default class ClaimXfund extends React.Component {
     const { currentAccount, contract, ethereum } = this.props
     const { mainchainTxHash } = this.state
     let nonce = 0
+    let contractSigSalt
     try {
       nonce = await contract.methods.lastNonce(currentAccount).call()
+      contractSigSalt = await contract.methods.sigSalt().call()
+      console.log("contractSigSalt", contractSigSalt)
     } catch (err) {
       this._setError(err.message)
       return
@@ -116,7 +119,7 @@ export default class ClaimXfund extends React.Component {
 
     const domain = [...xFundSigDomain]
     const txData = [...xFundSigTxData]
-    const domainData = xFundSigDomainData(ethereum.chainId)
+    const domainData = xFundSigDomainData(ethereum.chainId, contractSigSalt)
     const message = {
       tx_hash: mainchainTxHash,
       sig_nonce: sigNonce,

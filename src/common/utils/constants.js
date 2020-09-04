@@ -90,14 +90,14 @@ const xFundSigTxData = [
   { name: "tx_hash", type: "string" },
   { name: "sig_nonce", type: "uint256" },
 ]
-const xFundSigDomainData = (chainId) => {
+const xFundSigDomainData = (chainId, sigSalt) => {
   const parsedChainId = parseInt(chainId, 10)
   return {
     name: "xFUND",
     version: "1",
     chainId: parsedChainId,
     verifyingContract: process.env.XFUND_CONTRACT_ADDRESS,
-    salt: process.env.XFUND_CONTRACT_SALT,
+    salt: sigSalt,
   }
 }
 
