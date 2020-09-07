@@ -11,15 +11,32 @@ export async function getServerSideProps() {
   const valRes = await fetch(`${process.env.ORACLE_BACKEND_API}/validators/info`)
   const valData = await valRes.json()
 
+  const issuedRes = await fetch(`${process.env.ORACLE_BACKEND_API}/claims/status/1`)
+  const issuedData = await issuedRes.json()
+
+  const stagedRes = await fetch(`${process.env.ORACLE_BACKEND_API}/claims/status/0`)
+  const stagedData = await stagedRes.json()
+
   const unclaimedData = []
 
   if (valData.status === 200 && unclaimedDataRes.status === 200) {
     for (let i = 0; i < valData.result.length; i += 1) {
       const v = valData.result[i]
       v.total_unclaimed = "0"
+      v.total_incomplete = 0
       for (let j = 0; j < unclaimedDataRes.result.length; j += 1) {
         if (v.operator_address === unclaimedDataRes.result[j].operator_address) {
           v.total_unclaimed = unclaimedDataRes.result[j].total_unclaimed
+        }
+      }
+      for (let k = 0; k < issuedData.result.length; k += 1) {
+        if (v.operator_address === issuedData.result[k].operator_address) {
+          v.total_incomplete += issuedData.result[k].amount
+        }
+      }
+      for (let m = 0; m < stagedData.result.length; m += 1) {
+        if (v.operator_address === stagedData.result[m].operator_address) {
+          v.total_incomplete += stagedData.result[m].amount
         }
       }
       unclaimedData.push(v)
