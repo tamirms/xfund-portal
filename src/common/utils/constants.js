@@ -1,4 +1,5 @@
 const TICKET_CLAIM_STATUS = {
+  INITIALISED: 0,
   ISSUED: 1,
   CLAIMED: 2,
 }
@@ -16,6 +17,8 @@ const STATUS_CODES = {
     CLAIM_TICKET: 8,
     NONCE: 9,
     DB_QUERY_ERROR: 10,
+    DB_INS: 11,
+    DB_UPD: 12,
   },
   OK: 200,
 }
@@ -29,6 +32,8 @@ const DEFAULT_JSON_RESPONSE = {
 
 const claimStatusLookup = (claimStatus) => {
   switch (claimStatus) {
+    case TICKET_CLAIM_STATUS.INITIALISED:
+      return "initialised"
     case TICKET_CLAIM_STATUS.ISSUED:
       return "issued"
     case TICKET_CLAIM_STATUS.CLAIMED:
@@ -74,6 +79,10 @@ const errorCodeLookup = (errCode) => {
       return `[${errCode}] Nonce Error`
     case STATUS_CODES.ERR.DB_QUERY_ERROR:
       return `[${errCode}] DB Query Error`
+    case STATUS_CODES.ERR.DB_INS:
+      return `[${errCode}] DB Insert Error`
+    case STATUS_CODES.ERR.DB_UPD:
+      return `[${errCode}] DB Update Error`
     default:
       return `Unknown error code ${errCode}`
   }
@@ -91,7 +100,10 @@ const xFundSigTxData = [
   { name: "sig_nonce", type: "uint256" },
 ]
 const xFundSigDomainData = (chainId, sigSalt) => {
-  const parsedChainId = parseInt(chainId, 16)
+  let parsedChainId = parseInt(chainId, 16)
+  if (isNaN(parsedChainId)) {
+    parsedChainId = 1337 // handle ganache-cli bug where MetaMask sees chainId = 0xNaN
+  }
   return {
     name: "xFUND",
     version: "1",
