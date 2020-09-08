@@ -25,7 +25,7 @@ export async function getServerSideProps(context) {
 
   let res
   let valData
-  let issued = null
+  let stagedOrIssued = null
   let claimed = false
   if (queryMcTx) {
     res = await fetch(`${process.env.ORACLE_BACKEND_API}/claims/address/${queryAddress}/mctx/${queryMcTx}`)
@@ -39,11 +39,23 @@ export async function getServerSideProps(context) {
     res = await fetch(`${process.env.ORACLE_BACKEND_API}/emissions/unclaimed/address/${queryAddress}`)
     valData = await res.json()
 
-    const issuedRes = await fetch(`${process.env.ORACLE_BACKEND_API}/claims/address/${queryAddress}/status/1`)
-    const issuedNotClaimed = await issuedRes.json()
-    if (issuedNotClaimed.success && issuedNotClaimed.status === 200) {
-      if (issuedNotClaimed.result.length > 0) {
-        issued = issuedNotClaimed.result[0]
+    const stagedRes = await fetch(`${process.env.ORACLE_BACKEND_API}/claims/address/${queryAddress}/status/0`)
+    const stagedNotIssued = await stagedRes.json()
+    if (stagedNotIssued.success && stagedNotIssued.status === 200) {
+      if (stagedNotIssued.result.length > 0) {
+        stagedOrIssued = stagedNotIssued.result[0]
+      }
+    }
+
+    if (!stagedOrIssued) {
+      const issuedRes = await fetch(
+        `${process.env.ORACLE_BACKEND_API}/claims/address/${queryAddress}/status/1`,
+      )
+      const issuedNotClaimed = await issuedRes.json()
+      if (issuedNotClaimed.success && issuedNotClaimed.status === 200) {
+        if (issuedNotClaimed.result.length > 0) {
+          stagedOrIssued = issuedNotClaimed.result[0]
+        }
       }
     }
   }
@@ -60,13 +72,13 @@ export async function getServerSideProps(context) {
       validator,
       validatorExists,
       mcTx: queryMcTx,
-      issued,
+      stagedOrIssued,
       claimed,
     },
   }
 }
 
-export default function Claim({ validator, validatorExists, mcTx, issued, claimed }) {
+export default function Claim({ validator, validatorExists, mcTx, stagedOrIssued, claimed }) {
   if (validatorExists) {
     if (claimed) {
       return (
@@ -87,24 +99,24 @@ export default function Claim({ validator, validatorExists, mcTx, issued, claime
         </Layout>
       )
     }
-    if (issued) {
+    if (stagedOrIssued) {
       return (
         <Layout>
           <section>
             <div>
               <p>Warning: you have an incomplete claim - please complete this before beginning a new claim</p>
               <ul>
-                <li>Node: {issued.moniker}</li>
-                <li>Date Issued: {issued.created}</li>
-                <li>Amount: {issued.amount} xFUND</li>
-                <li>Operator: {issued.operator_address}</li>
-                <li>Address: {issued.self_delegate_address}</li>
-                <li>Ethereum Address: {issued.eth_address}</li>
-                <li>Mainchain Tx: {issued.mainchain_tx}</li>
+                <li>Node: {stagedOrIssued.moniker}</li>
+                <li>Date Issued: {stagedOrIssued.created}</li>
+                <li>Amount: {stagedOrIssued.amount} xFUND</li>
+                <li>Operator: {stagedOrIssued.operator_address}</li>
+                <li>Address: {stagedOrIssued.self_delegate_address}</li>
+                <li>Ethereum Address: {stagedOrIssued.eth_address}</li>
+                <li>Mainchain Tx: {stagedOrIssued.mainchain_tx}</li>
               </ul>
               <Link
-                href={`/claim/[address]?mctx=${issued.mainchain_tx}`}
-                as={`/claim/${issued.self_delegate_address}?mctx=${issued.mainchain_tx}`}
+                href={`/claim/[address]?mctx=${stagedOrIssued.mainchain_tx}`}
+                as={`/claim/${stagedOrIssued.self_delegate_address}?mctx=${stagedOrIssued.mainchain_tx}`}
               >
                 <Button>Complete Claim</Button>
               </Link>
@@ -136,6 +148,6 @@ Claim.propTypes = {
   validator: PropTypes.object,
   validatorExists: PropTypes.bool,
   mcTx: PropTypes.string,
-  issued: PropTypes.object,
+  stagedOrIssued: PropTypes.object,
   claimed: PropTypes.bool,
 }

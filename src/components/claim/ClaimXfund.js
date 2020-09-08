@@ -107,7 +107,6 @@ export default class ClaimXfund extends React.Component {
     try {
       nonce = await contract.methods.lastNonce(currentAccount).call()
       contractSigSalt = await contract.methods.sigSalt().call()
-      console.log("contractSigSalt", contractSigSalt)
     } catch (err) {
       this._setError(err.message)
       return

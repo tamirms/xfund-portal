@@ -72,13 +72,13 @@ export default function ClaimHistory({ history, selfDelegatorAddress, operatorAd
                           <a target="_blank">{ethereum_tx}</a>
                         </Link>
                       ) : (
-                        "issued but not yet claimed"
+                        "initialised or issued but not yet claimed. Click the Complete Claim button"
                       )}
                     </ListGroup.Item>
                   </ListGroup>
                 </td>
                 <td>
-                  {claim_status === 1 ? (
+                  {claim_status === 1 || claim_status === 0 ? (
                     <Link
                       href={`/claim/[address]?mctx=${mainchain_tx}`}
                       as={`/claim/${selfDelegatorAddress}?mctx=${mainchain_tx}`}
