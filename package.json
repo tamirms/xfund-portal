@@ -19,7 +19,7 @@
     "bootstrap": "^4.5.2",
     "isomorphic-unfetch": "^3.0.0",
     "jsonwebtoken": "^8.5.1",
-    "next": "^9.5.2",
+    "next": "^12.0.8",
     "next-connect": "^0.8.1",
     "prop-types": "^15.7.2",
     "react": "^16.13.1",
